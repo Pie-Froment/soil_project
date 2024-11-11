@@ -41,16 +41,35 @@ names(tsbf)=ifelse(is.na(lexicon$code[match(names(tsbf),lexicon$order)]),
        names(tsbf),
        lexicon$code[match(names(tsbf),lexicon$order)])
 
-# replacing Oct-20 by 10-20 in the couche column.
-names(tsbf)[names(tsbf)=="coucheL_10_20"]="couche"
-tsbf$couche[tsbf$couche == "Oct-20"]="10-20"
+
+# Uniformisation of factors levels across the different data.frames. Here,
+# I choose site (2 levels, Forest-cacao),plot (the 2 plots in the cacao and
+# forest site), replicat (the five points in each plots). I also correct for 
+# dates' formats.
+
+tsbf %>% rename(plot = site,
+                site = parcellePCPF, layer = coucheL_10_20)%>%
+  mutate(site = recode(site, "SAF"="Cacao","PF"="Forest"),
+         date = recode(date, "17/09/2024"=17092024, "18/09/2024"=18092024,
+                       "17092024" = 17092024),
+         layer = case_when(layer == "Oct-20"~"20",
+                           layer == "0-10"~"10",
+                           .default = layer),
+         ID = paste(site,plot,replicat,layer, sep = "-"))->tsbf
+
 
 
 ## wood: ----
-names(wood)=c("code","site","plot","replicat","mesh","surreplicat","startwht","endwht")
+wood %>% rename_with(~c("ID","site","plot","replicat","mesh","stickreplicat",
+                  "startwht","endwht"))%>%
+  mutate(ID = paste(site,plot,replicat,mesh,stickreplicat,sep = "-"))-> wood
+
 
 ## lamina: ----
-
+lamina %>% rename_with(~c("ID","site","plot","replicat","laminalab","hole"))%>%
+  mutate(site = case_when(site == "PC"~"Cacao",
+                          site == "PF"~"Forest"),
+         ID= paste(site,plot, replicat,laminalab,hole, sep = "-")) -> lamina
 
 
 
