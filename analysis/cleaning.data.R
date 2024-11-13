@@ -62,7 +62,7 @@ tsbf %>% rename(plot = site,
 ## wood: ----
 wood %>% rename_with(~c("ID","site","plot","replicat","mesh","stickreplicat",
                   "startwht","endwht"))%>%
-  mutate(ID = paste(site,plot,replicat,mesh,stickreplicat,sep = "-"))-> wood
+  mutate(ID = paste(site,plot,replicat,mesh,sep = "-"))-> wood
 
 
 ## lamina: ----
