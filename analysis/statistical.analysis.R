@@ -29,6 +29,7 @@ source("analysis/cleaning.data.R")
 # Since we have two sticks by bags and these sticks are complete pseudoreplicates 
 # we merge the two sticks measurements into one average weight loss per bag.
 
+# merging the two sticks measurements per bag into a single one:
 wood %>% group_by(ID)%>%
   reframe(plot = unique(plot), replicat = unique(replicat), 
           mesh = unique(mesh),site = unique(site),
@@ -37,25 +38,36 @@ wood %>% group_by(ID)%>%
 
 # Plotting the data: 
 
+# Plotting the percentage of weight loss versus site (mesh = colour)
 ggplot(data = wood)+ 
   geom_point(mapping = aes(x = jitter(as.numeric(as.factor(site)), 0.1), 
-                           y = startwht-endwht, colour = mesh))+
+                           y = (startwht-endwht)/startwht, colour = mesh))+
   theme_bw()+
   xlim(0.5,2.5)
- 
+
+# same plot but a box plot:
 ggplot(data = wood)+ 
   geom_boxplot(mapping = aes(x = site, 
-                           y = startwht-endwht, colour = mesh))+
+                           y = (startwht-endwht)/startwht, colour = mesh))+
   theme_bw()
 
-M_wood = lm(startwht-endwht~site*mesh, data= wood)
+## a: first model ----
+# (here, a simple linear model with an interaction):
+# Notes: since the response variable is a percentage (bounded between 0 and 100),
+# maybe we have to adopt a generalised linear model. 
+M_wood = lm((startwht-endwht)/startwht~site*mesh, data= wood)
+
+# Checking model assumptions: 
 par(mfrow = c(2,2))
 plot(M_wood)
 par(mfrow = c(1,1))
 
-shapiro.test(resid(M_wood))
-bptest(M_wood)
-dwtest(M_wood)
+hist(resid(M_wood))
 
-summary(M_wood)
-Anova(M_wood)
+shapiro.test(resid(M_wood)) # normality
+bptest(M_wood) # Homogeneity
+dwtest(M_wood) # independence
+
+Anova(M_wood) # type 2 anova
+summary(M_wood) # summary
+
