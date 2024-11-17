@@ -5,17 +5,38 @@
 
 # Libraries: ----
 
-library(lme4)
-library(lmtest)
-library(car)
+library(lme4) # for mixed models (in case)
+library(lmtest) # to check linear models assumptions.
+library(car)# for type II Anovas.
+
+library(FactoMineR) # To carry out multivariate analyses (PCA, CA, PCoA).
+library(factoextra)
+library(vegan)# for PCoA using Bray-Curtis distances.
 
 # Importing data: ----
 
-source("analysis/cleaning.data.R")
+# this code will be embedded within the main Rmarkdown. Run the line below if 
+# you are running it independently:
+# source("analysis/cleaning.data.R")
 
 
 #1: TSBF diversity analysis: ----
 
+# list of trophic levels we have so far:
+unique(unlist(str_split(lexicon$trophic, "-")))
+
+# for the analyses, we get rid of the yellow and green eggs taxon (probably
+# fertilisers) and of unknonwn taxons:
+taxon_focus = lexicon$code
+taxon_focus = taxon_focus[!(taxon_focus%in%c("yl.egg","gr.egg","unk"))]
+
+CA_tsbf = CA(tsbfPA[,taxon_focus], graph = F, ncp = 6)
+
+fviz_eig(CA_tsbf)
+fviz_ca_biplot(CA_tsbf, axes = c(1,2),
+        col.row=tsbfPA$site)
+fviz_ca_biplot(CA_tsbf, axes = c(1,2),
+               col.row=tsbfPA$layer)
 
 
 

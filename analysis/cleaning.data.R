@@ -29,12 +29,33 @@ code = c("sna","slu","plan","lum.ol","tub.ol","hir","di.la","cur.la","eru.la",
          "thys","dipr","prot","hym","isopt","ara","sco","ps.sco","opi","aca",
          "isopd","sym","chil","dipd","neu","lep.la","amb","yl.egg","gr.egg",
          "unk")
-# are each code unique: 
+# checking if each code is unique: 
 # length(unique(code)) == length(code)
 
-lexicon = data.frame(cbind(lexicon,code))
-names(lexicon) = c("order","code")
-rm(code)
+# adding informations about order trophic preferences:
+# following "Identification key for soil macrofauna, Thibaud Decaëns 2015.
+# Here, we assume that the Amblypygi are predators, as well as the Neuropterans,
+# and that the lepidopteran larvae are phytophagous:
+
+trophic = c("phytophagous-saprophagous","phytophagous-saprophagous","predator",
+            "saprophagous","saprophagous","predator","saprophagous",
+            "phytophagous","phytophagous","saprophagous-rhizophagous","predator",
+            "predator-saprophagous","phytophagous-saprophagous-predator",
+            "saprophagous","predator-saprophagous-phytophagous",
+            "phytophagous-predator","phytophagous-predator","saprophagous",
+            "saprophagous","saprophagous-predator","saprophagous",
+            "phytophagous-predator","phytophagous-saprophagous","predator",
+            "predator","predator","predator","saprophagous-predator",
+            "saprophagous","saprophagous","predator","saprophagous",
+            "predator","phytophagous","predator","","","")
+
+# maybe add a category for fungivore
+# potential canditates: Collembolans, Diplura, Coleoptera, Dipteran larva,
+# Mites, Protura, 
+
+lexicon = data.frame(cbind(lexicon,code,trophic))
+names(lexicon) = c("order","code","trophic")
+rm(code, trophic)
 
 # replacing order name by their code:
 names(tsbf)=ifelse(is.na(lexicon$code[match(names(tsbf),lexicon$order)]),
@@ -49,15 +70,17 @@ names(tsbf)=ifelse(is.na(lexicon$code[match(names(tsbf),lexicon$order)]),
 
 tsbf %>% rename(plot = site,
                 site = parcellePCPF, layer = coucheL_10_20)%>%
-  mutate(site = recode(site, "SAF"="Cacao","PF"="Forest"),
-         date = recode(date, "17/09/2024"=17092024, "18/09/2024"=18092024,
+  mutate(site = dplyr::recode(site, "SAF"="Cacao","PF"="Forest"),
+         date = dplyr::recode(date, "17/09/2024"=17092024, "18/09/2024"=18092024,
                        "17092024" = 17092024),
          layer = case_when(layer == "Oct-20"~"20",
                            layer == "0-10"~"10",
                            .default = layer),
          ID = paste(site,plot,replicat,layer, sep = "-"))->tsbf
 
-
+# creating a new tibble with presence-absence of orders rather than their 
+# abundances (potential use in future correspondence analysis):
+tsbf %>% mutate(across(lexicon$code,~ ifelse(. > 0, 1, 0))) -> tsbfPA
 
 ## wood: ----
 wood %>% rename_with(~c("ID","site","plot","replicat","mesh","stickreplicat",

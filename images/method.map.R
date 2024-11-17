@@ -27,9 +27,13 @@ brazil = st_read("images/method_images/geoBoundaries-BRA-ADM0_simplified.shp")
 suriname = st_read("images/method_images/geoBoundaries-SUR-ADM0_simplified.shp")
 
 # Merging brazil, suriname and guiana shapefiles together:
+# note: the function below returns an error. To correct if we have time.
 southamerica = rbind(brazil[,c("shapeName","geometry")],
                      suriname[,c("shapeName","geometry")],
                      guiana2[,c("shapeName","geometry")])
+
+
+
 # cropping this shapefiles to only have the area around french guiana:
 southamerica = st_crop(southamerica,xmin = -55.5, 
                        ymax = 6.276353876558921, ymin = 1.6,
