@@ -6,12 +6,14 @@
 # Libraries: ----
 
 library(lme4) # for mixed models (in case)
-library(lmtest) # to check linear models assumptions.
-library(car)# for type II Anovas.
+library(lmtest) # to check linear models assumptions
+library(car)# for type II Anovas
 
-library(FactoMineR) # To carry out multivariate analyses (PCA, CA, PCoA).
+library(FactoMineR) # To carry out multivariate analyses (PCA, CA)
 library(factoextra)
-library(vegan)# for PCoA using Bray-Curtis distances.
+library(vegan) # for PCoA using Bray-Curtis distances
+library(ade4) # for multivariate analyses (PcoA)
+library(ape) # for multivariate analyses (PcoA)
 
 # Importing data: ----
 
@@ -30,6 +32,8 @@ unique(unlist(str_split(lexicon$trophic, "-")))
 taxon_focus = lexicon$code
 taxon_focus = taxon_focus[!(taxon_focus%in%c("yl.egg","gr.egg","unk"))]
 
+## A: Correspondence analysis: ----
+
 CA_tsbf = CA(tsbfPA[,taxon_focus], graph = F, ncp = 6)
 
 fviz_eig(CA_tsbf)
@@ -39,6 +43,72 @@ fviz_ca_biplot(CA_tsbf, axes = c(1,2),
                col.row=tsbfPA$layer)
 
 
+## B: PCoA/Bray Curtis distances: ----
+# We use bray curtis distances as it integrates both the composition and the 
+# relative abundance of each species in its distance. 
+
+# Computing the distance matrix: 
+bcdist = vegdist(tsbf[,taxon_focus], "bray")
+
+# Bray-Curtis distances are non-metric: can convert them to a metric by using 
+# their Square root: 
+bcdist_sqrt = sqrt(bcdist)
+# Checking the distortion of the square root transformation compared to initial
+# Bray-curtis distances:
+plot(bcdist~bcdist_sqrt, xlim = c(0,1), ylim = c(0,1))
+cor(bcdist,bcdist_sqrt)
+is.euclid(bcdist_sqrt) # it is euclidean, so we can use a PcoA to represent the
+# distances.
+
+# Computing the PcoA:
+pcoa_tsbf = pcoa(bcdist_sqrt)
+
+# Checking the eigen values: 
+ggplot()+ geom_bar(mapping = aes(x = order(pcoa_tsbf$values$Relative_eig, 
+                                           decreasing = T),
+                                 y = pcoa_tsbf$values$Relative_eig), 
+                   stat = "identity")+
+  xlab("Axes")+ylab("Proportion of variance")+
+  theme_minimal()
+# Here, we see that only 25% of the information is retained is the first 2 axes.
+
+# Plotting the first two axes (colour = Area):
+ggplot()+ geom_point(data= pcoa_tsbf$vectors, 
+                     mapping = aes(x = Axis.1, y = Axis.2, 
+                                   colour = tsbf$site),
+                     shape = 16)+
+  theme_bw()
+# on axes 3 and 4:
+# ggplot()+ geom_point(data= pcoa_tsbf$vectors, 
+#                      mapping = aes(x = Axis.3, y = Axis.4, 
+#                                    colour = tsbf$site),
+#                      shape = 16)+
+#   theme_bw()
+
+# again but we colour by layers:
+ggplot()+ geom_point(data= pcoa_tsbf$vectors, 
+                     mapping = aes(x = Axis.1, y = Axis.2, 
+                                   colour = tsbf$layer),
+                     shape = 16)+
+  theme_bw()
+# Here, we see that the points clearly seperate based on the layer, but not so
+# much based on the site. 
+
+# Computing a Permanova on Bray-Curtis distances:
+
+# check whether the dispersion in bray-Curtis distance (sqrt) varies between 
+# the groups (site, layer):
+anova(betadisper(bcdist_sqrt,tsbf$site)) 
+anova(betadisper(bcdist_sqrt,tsbf$layer))
+# results: homogeneous dispersion for both sites and layers in bray-curtis 
+# distances. 
+
+adonis2(bcdist_sqrt~layer, data = tsbf, permutations = 999)
+adonis2(bcdist_sqrt~site, data = tsbf, permutations = 999)
+adonis2(bcdist_sqrt~site*layer, data = tsbf, permutations = 999)
+
+
+## C: Species-accumulation curve, and diversity of different orders:
 
 #2: Wood decomposition rate analysis: ----
 
@@ -75,7 +145,7 @@ ggplot(data = wood)+
 ## a: first model ----
 # (here, a simple linear model with an interaction):
 # Notes: since the response variable is a percentage (bounded between 0 and 100),
-# maybe we have to adopt a generalised linear model. 
+# maybe we have to adopt a generalised linear model (with a beta distribution). 
 M_wood = lm((startwht-endwht)/startwht~site*mesh, data= wood)
 
 # Checking model assumptions: 
@@ -83,7 +153,7 @@ par(mfrow = c(2,2))
 plot(M_wood)
 par(mfrow = c(1,1))
 
-hist(resid(M_wood))
+hist(resid(M_wood))# distribution of residuals
 
 shapiro.test(resid(M_wood)) # normality
 bptest(M_wood) # Homogeneity
