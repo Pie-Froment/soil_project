@@ -15,6 +15,8 @@ library(vegan) # for PCoA using Bray-Curtis distances
 library(ade4) # for multivariate analyses (PcoA)
 library(ape) # for multivariate analyses (PcoA)
 
+library(entropart) # for diversity analyses
+
 # Importing data: ----
 
 # this code will be embedded within the main Rmarkdown. Run the line below if 
@@ -28,9 +30,12 @@ library(ape) # for multivariate analyses (PcoA)
 unique(unlist(str_split(lexicon$trophic, "-")))
 
 # for the analyses, we get rid of the yellow and green eggs taxon (probably
-# fertilisers) and of unknonwn taxons:
+# fertilisers) and of unknonwn taxons + taxa with 0 observations:
 taxon_focus = lexicon$code
-taxon_focus = taxon_focus[!(taxon_focus%in%c("yl.egg","gr.egg","unk"))]
+#  taxa with 0 observations:
+selec= names(colSums(tsbf[,taxon_focus])[colSums(tsbf[,taxon_focus])==0])
+taxon_focus = taxon_focus[!(taxon_focus%in%c("yl.egg","gr.egg","unk", selec))]
+rm(selec)
 
 ## A: Correspondence analysis: ----
 
@@ -108,13 +113,84 @@ adonis2(bcdist_sqrt~site, data = tsbf, permutations = 999)
 adonis2(bcdist_sqrt~site*layer, data = tsbf, permutations = 999)
 
 
-## C: Species-accumulation curve, and diversity of different orders:
+## C: Species-accumulation curve ----
+
+# Here we create a new dataset where we summed all taxa abundance in the 
+# different layers in each tsbf sites (for the accumulation curve)
+tsbf %>% select(c("site","replicat",all_of(taxon_focus)))%>%
+  group_by(site,replicat)%>%
+  summarise(across(all_of(taxon_focus), sum, na.rm = T), .groups = "drop") ->
+  tsbf_co 
+
+
+# Create the accumulation curve using the specaccum function (method = random):
+Cocoa = specaccum(tsbf_co[tsbf_co$site=="Cocoa",taxon_focus],
+          method = "random", permutations = 100,
+          ci = 0.95)
+Forest = specaccum(tsbf_co[tsbf_co$site=="Forest",taxon_focus],
+          method = "random", permutations = 100,
+          ci = 0.95)
+
+# We plot these curves in a very tedious way:
+
+ggplot()+ # Cocoa line:
+  geom_line(mapping = aes(x = unlist(Cocoa$sites), y = unlist(Cocoa$richness)),
+            linewidth = 1.2, col = "#e31a1c", show.legend = T)+
+  geom_ribbon(mapping = aes(ymin = unlist(Cocoa$richness) - unlist(Cocoa$sd), 
+                            ymax = unlist(Cocoa$richness) + unlist(Cocoa$sd),
+                            x = unlist(Cocoa$sites)), colour ="lightgray",
+              alpha = 0.3, show.legend = T)+
+  theme_bw()+# forest line: 
+  geom_line(mapping = aes(x = unlist(Forest$sites), y = unlist(Forest$richness)),
+            linewidth = 1.2, col = "darkgreen", show.legend = T)+
+  geom_ribbon(mapping = aes(ymin = unlist(Forest$richness) - unlist(Forest$sd), 
+                            ymax = unlist(Forest$richness) + unlist(Forest$sd),
+                            x = unlist(Forest$sites)), colour ="lightgray",
+              alpha = 0.3, show.legend = T)+
+  xlab("Sites")+ylab("Richness (order)")+
+  geom_line(mapping = aes(x = c(1,1), y = c(1,2), 
+                          # geom_line just to make a legend appear
+                           colour = c("#e31a1c", "darkgreen")))+
+  scale_color_manual(values = c("#e31a1c", "darkgreen"),# modifying the legend
+                     labels = c("Cocoa","Forest"))+
+  ylim(c(9,26))+ labs(color = "Sites")
+
+# deleting variables we dont need anymore: 
+rm(Cocoa,Forest)
+
+## D: Diversity profiles: ----
+
+# For diversity profiles, we want to differentiate between the different
+# layers (could be interesting), as well as between the sites:
+
+# Creating a new dataset summing data by layers and site:
+
+tsbf %>% select(c("site","layer",all_of(taxon_focus)))%>%
+  group_by(site,layer)%>%
+  summarise(across(all_of(taxon_focus), sum, na.rm = T), .groups = "drop") ->
+  tsbf_la 
+
+# Whittaker plots in the different sub-grouping (exploratory):
+# All:
+plot(as.AbdVector(colSums(tsbf_la[,taxon_focus])))
+# Cocoa:
+as.AbdVector(colSums(tsbf_la[tsbf_la$site == "Cocoa",taxon_focus]))%>%
+  plot()
+# Forest:
+as.AbdVector(colSums(tsbf_la[tsbf_la$site == "Forest",taxon_focus]))%>%
+  plot()
+
+# maybe do a ggplot combining the two whitakker's plots together. 
+
+# Creation of a nice graph showing the pyramid of age abundances instead: 
+
+
 
 #2: Wood decomposition rate analysis: ----
 
 # here, we will model the wood mass loss (initial mass-final mass) as a function
 # of mesh size (effect of mesofauna vs microfauna), site (forest effect 
-# vs cacao effect) and their interaction (differential effect of mesofauna in the
+# vs Cocoa effect) and their interaction (differential effect of mesofauna in the
 # different sites)
 
 # Since we have two sticks by bags and these sticks are complete pseudoreplicates 

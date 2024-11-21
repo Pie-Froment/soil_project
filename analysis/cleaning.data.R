@@ -70,7 +70,7 @@ names(tsbf)=ifelse(is.na(lexicon$code[match(names(tsbf),lexicon$order)]),
 
 tsbf %>% rename(plot = site,
                 site = parcellePCPF, layer = coucheL_10_20)%>%
-  mutate(site = dplyr::recode(site, "SAF"="Cacao","PF"="Forest"),
+  mutate(site = dplyr::recode(site, "SAF"="Cocoa","PF"="Forest"),
          date = dplyr::recode(date, "17/09/2024"=17092024, "18/09/2024"=18092024,
                        "17092024" = 17092024),
          layer = case_when(layer == "Oct-20"~"20",
@@ -85,12 +85,14 @@ tsbf %>% mutate(across(lexicon$code,~ ifelse(. > 0, 1, 0))) -> tsbfPA
 ## wood: ----
 wood %>% rename_with(~c("ID","site","plot","replicat","mesh","stickreplicat",
                   "startwht","endwht"))%>%
-  mutate(ID = paste(site,plot,replicat,mesh,sep = "-"))-> wood
+  mutate(mesh = case_when(mesh == "coarse"~"wide-mesh",
+                          mesh == "fine"~"tight-mesh"),
+         ID = paste(site,plot,replicat,mesh,sep = "-"))-> wood
 
 
 ## lamina: ----
 lamina %>% rename_with(~c("ID","site","plot","replicat","laminalab","hole"))%>%
-  mutate(site = case_when(site == "PC"~"Cacao",
+  mutate(site = case_when(site == "PC"~"Cocoa",
                           site == "PF"~"Forest"),
          ID= paste(site,plot, replicat,laminalab,hole, sep = "-")) -> lamina
 
