@@ -16,6 +16,7 @@ library(ade4) # for multivariate analyses (PcoA)
 library(ape) # for multivariate analyses (PcoA)
 
 library(entropart) # for diversity analyses
+library(gtools) # because of this *** order() function that gives wrong order.
 
 # Importing data: ----
 
@@ -46,6 +47,11 @@ fviz_ca_biplot(CA_tsbf, axes = c(1,2),
         col.row=tsbfPA$site)
 fviz_ca_biplot(CA_tsbf, axes = c(1,2),
                col.row=tsbfPA$layer)
+fviz_ca_row(CA_tsbf, col.row = tsbfPA$layer,
+            axes = c(1,2))
+
+fviz_ca_row(CA_tsbf, col.row = tsbfPA$site,
+            axes = c(1,2))
 
 
 ## B: PCoA/Bray Curtis distances: ----
@@ -112,8 +118,36 @@ adonis2(bcdist_sqrt~layer, data = tsbf, permutations = 999)
 adonis2(bcdist_sqrt~site, data = tsbf, permutations = 999)
 adonis2(bcdist_sqrt~site*layer, data = tsbf, permutations = 999)
 
+## C: Species abundances plot: ----
+# Creation of a nice graph showing the pyramid of age abundances instead:
+# data.frame:
+tsbf %>% select(c("site",all_of(taxon_focus)))%>%
+  group_by(site)%>%
+  summarise(across(all_of(taxon_focus), sum, na.rm = T), .groups = "drop") %>%
+  pivot_longer(cols = all_of(taxon_focus),
+               names_to = "taxa",
+               values_to = "abundance") -> tsbfplot
 
-## C: Species-accumulation curve ----
+# We add a column with the taxon order:
+col = colSums(tsbf[,taxon_focus])
+col = sort(col, decreasing = T)
+newvec = 1:29
+# very dirty corde but it works (did not manage to use order())
+tsbfplot$rank=newvec[match(tsbfplot$taxa,names(col))]
+rm(newvec,col)
+
+#Plotting abundances:
+ggplot(data= tsbfplot, mapping = aes(x = rev(as.numeric(rank)),
+                                             y = abundance, fill = site))+
+  geom_bar(stat = "identity", position = "identity")+
+  scale_fill_manual(values = c("#e31a1c","darkgreen"))+
+  coord_flip()+
+  theme_minimal()+
+  theme(panel.grid.major.y= element_blank(),
+        panel.grid.minor.y= element_blank(),
+        axis.text.y=element_blank())
+
+## D: Species-accumulation curve ----
 
 # Here we create a new dataset where we summed all taxa abundance in the 
 # different layers in each tsbf sites (for the accumulation curve)
@@ -158,7 +192,7 @@ ggplot()+ # Cocoa line:
 # deleting variables we dont need anymore: 
 rm(Cocoa,Forest)
 
-## D: Diversity profiles: ----
+## E: Diversity profiles: ----
 
 # For diversity profiles, we want to differentiate between the different
 # layers (could be interesting), as well as between the sites:
@@ -182,7 +216,6 @@ as.AbdVector(colSums(tsbf_la[tsbf_la$site == "Forest",taxon_focus]))%>%
 
 # maybe do a ggplot combining the two whitakker's plots together. 
 
-# Creation of a nice graph showing the pyramid of age abundances instead: 
 
 
 
