@@ -130,14 +130,19 @@ tsbf %>% select(c("site",all_of(taxon_focus)))%>%
 
 # We add a column with the taxon order:
 col = colSums(tsbf[,taxon_focus])
-col = sort(col, decreasing = T)
+col = sort(col)
 newvec = 1:29
 # very dirty corde but it works (did not manage to use order())
 tsbfplot$rank=newvec[match(tsbfplot$taxa,names(col))]
 rm(newvec,col)
 
+# change abundances for Cocoa to negative abundance for the plotting:
+tsbfplot$abundance = ifelse(tsbfplot$site == "Cocoa",
+                            -tsbfplot$abundance,
+                            tsbfplot$abundance)
+
 #Plotting abundances:
-ggplot(data= tsbfplot, mapping = aes(x = rev(as.numeric(rank)),
+ggplot(data= tsbfplot, mapping = aes(x = as.numeric(rank),
                                              y = abundance, fill = site))+
   geom_bar(stat = "identity", position = "identity")+
   scale_fill_manual(values = c("#e31a1c","darkgreen"))+
@@ -145,7 +150,13 @@ ggplot(data= tsbfplot, mapping = aes(x = rev(as.numeric(rank)),
   theme_minimal()+
   theme(panel.grid.major.y= element_blank(),
         panel.grid.minor.y= element_blank(),
-        axis.text.y=element_blank())
+        axis.text.y=element_blank())+
+  scale_y_continuous(breaks = c(seq(-300,300,100)),
+                     labels = c(seq(300,0,-100),seq(100,300,100)),
+                     limits = c(-300,300))+
+  geom_text(mapping = aes(x = as.numeric(rank),
+                          y = rep(-270,58), label = taxa ))+
+  ylab("Abundance")+xlab("Taxa")
 
 ## D: Species-accumulation curve ----
 
@@ -229,15 +240,15 @@ as.AbdVector(colSums(tsbf_la[tsbf_la$site == "Forest",taxon_focus]))%>%
 # Since we have two sticks by bags and these sticks are complete pseudoreplicates 
 # we merge the two sticks measurements into one average weight loss per bag.
 
-# merging the two sticks measurements per bag into a single one:
-wood %>% group_by(ID)%>%
-  reframe(plot = unique(plot), replicat = unique(replicat), 
-          mesh = unique(mesh),site = unique(site),
-          startwht= mean(startwht),
-            endwht = mean(endwht)) -> wood
+wood %>% 
+  pivot_wider(names_from =mesh, values_from = proploss,
+              values_fill = list(proploss = 0))%>%
+  group_by(site,plot, replicat)%>%
+  summarise(tight.mesh = max(tight.mesh),
+         wide.mesh = max(wide.mesh))%>%
+  mutate(faunaproploss = wide.mesh-tight.mesh) -> woodfauna
 
 # Plotting the data: 
-
 # Plotting the percentage of weight loss versus site (mesh = colour)
 ggplot(data = wood)+ 
   geom_point(mapping = aes(x = jitter(as.numeric(as.factor(site)), 0.1), 
@@ -251,10 +262,15 @@ ggplot(data = wood)+
                            y = (startwht-endwht)/startwht, colour = mesh))+
   theme_bw()
 
-## a: first model ----
+
+
+## B: first model ----
 # (here, a simple linear model with an interaction):
 # Notes: since the response variable is a percentage (bounded between 0 and 100),
-# maybe we have to adopt a generalised linear model (with a beta distribution). 
+# maybe we have to adopt a generalised linear model (with a beta distribution).
+# UPDATE: we abandoned this model to focus on modelling the loss caused by fauna
+# (losses of wide mesh-losses of tight mesh)for each locations:
+
 M_wood = lm((startwht-endwht)/startwht~site*mesh, data= wood)
 
 # Checking model assumptions: 
@@ -270,4 +286,58 @@ dwtest(M_wood) # independence
 
 Anova(M_wood) # type 2 anova
 summary(M_wood) # summary
+
+## B: second model ----
+# Following meeting with Irene, (22/11/2024):
+# we focus on predicting the mass loss proportion caused by fauna (proportion of
+# mass lost in wide-meshed bags- proportion of mass lost in tight-mesh bags):
+
+# quick plot: 
+ggplot(data = woodfauna)+
+  geom_boxplot(mapping = aes(x = site, y = faunaproploss))
+
+M_wood = lmer(faunaproploss~site, data = woodfauna)
+
+hist(resid(M_wood))# distribution of residuals: not normal
+
+# Checking model assumptions: 
+par(mfrow = c(2,2))
+plot(M_wood)
+par(mfrow = c(1,1))
+
+shapiro.test(resid(M_wood)) # normality: there is non-normality of the residuals
+bptest(M_wood) # Homogeneity
+dwtest(M_wood) # independence
+
+Anova(M_wood) # type 2 anova
+summary(M_wood) # summary
+
+# We move to a comparison of median using a Wilcoxon text (non-parametric):
+cacaomed = woodfauna$faunaproploss[woodfauna$site=="Cacao"]
+woodmed = woodfauna$faunaproploss[woodfauna$site=="Forest"]
+
+wilcox.test(cacaomed,woodmed)
+# tendency for median to be different, but they are not (over 0.05).
+
+
+
+ggplot()+
+  geom_point(data = woodfauna,
+             mapping = aes(x = jitter(as.numeric(as.factor(site)), 0.2), 
+                           y = faunaproploss))+
+  scale_x_continuous(breaks = c(1,2),labels = c("Cocoa","Forest"),
+                     limits = c(0.5,2.5))+
+  xlab("Site")+ylab("Differences in proportion of mass lost")+
+  geom_segment(mapping = aes(x = c(rep(0.75,3),rep(1.75,3)), 
+                          y = c(median(cacaomed),
+                                quantile(cacaomed,probs = c(0.25,0.75)),
+                                median(woodmed),
+                                quantile(woodmed,probs = c(0.25,0.75))),
+                          xend = c(rep(1.25,3),rep(2.25,3)),
+                          yend = c(median(cacaomed),
+                                quantile(cacaomed,probs = c(0.25,0.75)),
+                                median(woodmed),
+                                quantile(woodmed,probs = c(0.25,0.75))),
+                          linetype = factor(c(1,3,3,1,3,3))), col = "red")+
+  theme_bw()+theme(legend.position = "none")
 

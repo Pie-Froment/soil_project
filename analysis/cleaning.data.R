@@ -78,6 +78,17 @@ tsbf %>% rename(plot = site,
                            .default = layer),
          ID = paste(site,plot,replicat,layer, sep = "-"))->tsbf
 
+# For plot 9 for tubicifina oligochaete, 209 individuals have been observed
+# which is way more than in other plot. After discussion with Audrey and 
+# Irene, choice to remove it (probably a mistake, roots??):
+tsbf$tub.ol[tsbf$tub.ol == 209] = 0
+
+# Heteroptera is a suborder of Hemiptera. Change it to Hemiptera:
+names(tsbf)[names(tsbf)=="het"] = "hem"
+# Updating the lexicon as well:
+lexicon$order[lexicon$order=="heteroptera"]="hemiptera"
+lexicon$code[lexicon$code=="het"]="hem"
+
 # creating a new tibble with presence-absence of orders rather than their 
 # abundances (potential use in future correspondence analysis):
 tsbf %>% mutate(across(lexicon$code,~ ifelse(. > 0, 1, 0))) -> tsbfPA
@@ -85,9 +96,17 @@ tsbf %>% mutate(across(lexicon$code,~ ifelse(. > 0, 1, 0))) -> tsbfPA
 ## wood: ----
 wood %>% rename_with(~c("ID","site","plot","replicat","mesh","stickreplicat",
                   "startwht","endwht"))%>%
-  mutate(mesh = case_when(mesh == "coarse"~"wide-mesh",
-                          mesh == "fine"~"tight-mesh"),
-         ID = paste(site,plot,replicat,mesh,sep = "-"))-> wood
+  mutate(mesh = case_when(mesh == "coarse"~"wide.mesh",
+                          mesh == "fine"~"tight.mesh"),
+         ID = paste(site,plot,replicat,mesh,sep = "-"))%>% 
+  group_by(ID)%>% # merging the two wood measurements per bags into one
+  reframe(plot = unique(plot), replicat = unique(replicat), 
+          mesh = unique(mesh),site = unique(site),
+          startwht= mean(startwht), # we use mean weights of the two sticks
+          endwht = mean(endwht))%>%
+  # calculate the proportion of weight lost:
+  mutate(proploss = (startwht-endwht)/startwht)-> 
+  wood 
 
 
 ## lamina: ----
