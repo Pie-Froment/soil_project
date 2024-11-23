@@ -414,7 +414,7 @@ plot2 = plotfun(bootlist$Lco,bootlist$Lfo, title = "Leaf litter")
 plot3 = plotfun(bootlist$tenco,bootlist$tenfo, title = "0-10 cm")
 plot4 = plotfun(bootlist$twentyco,bootlist$twentyfo, title = "10-20 cm")
 
-ggarrange(plot1, plot2, plot3, plot4, 
+finalTSBF3plot =ggarrange(plot1, plot2, plot3, plot4, 
           ncol = 2, nrow = 2,                
           labels = c("A", "B", "C", "D"), common.legend = T)
 
