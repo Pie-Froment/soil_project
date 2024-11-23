@@ -17,6 +17,10 @@ library(ape) # for multivariate analyses (PcoA)
 
 library(entropart) # for diversity analyses
 library(gtools) # because of this *** order() function that gives wrong order.
+library(ggpubr)
+
+# setting the seed:
+set.seed(76)
 
 # Importing data: ----
 
@@ -56,7 +60,7 @@ fviz_ca_row(CA_tsbf, col.row = tsbfPA$site,
 
 ## B: PCoA/Bray Curtis distances: ----
 # We use bray curtis distances as it integrates both the composition and the 
-# relative abundance of each species in its distance. 
+# relative abundance of each species in its distance.
 
 # Computing the distance matrix: 
 bcdist = vegdist(tsbf[,taxon_focus], "bray")
@@ -118,6 +122,106 @@ adonis2(bcdist_sqrt~layer, data = tsbf, permutations = 999)
 adonis2(bcdist_sqrt~site, data = tsbf, permutations = 999)
 adonis2(bcdist_sqrt~site*layer, data = tsbf, permutations = 999)
 
+
+## UPDATE 22/11/2024: ----
+# After discussing with Irene, choice to summarise data by
+# sampling point (only 10 points remaining, 5 in each site) to get rid of
+# the dispersion caused by the different layer (we know that the layers have
+# different composition).
+
+# Here we create a new dataset where we summed all taxa abundance in the 
+# different layers in each tsbf sites (for the accumulation curve)
+tsbf %>% select(c("site","replicat",all_of(taxon_focus)))%>%
+  group_by(site,replicat)%>%
+  summarise(across(all_of(taxon_focus), sum, na.rm = T), .groups = "drop") ->
+  tsbf_co 
+
+# we repeat the steps in B to do a PCOA based on bray-curtis measures:
+bcdist2 = vegdist(tsbf_co[,taxon_focus],"bray")
+bcdist_sqrt2 = sqrt(bcdist2)
+plot(bcdist2~bcdist_sqrt2, xlim = c(0,1), ylim = c(0,1))
+cor(bcdist2,bcdist_sqrt2)
+is.euclid(bcdist_sqrt2) 
+
+# We test whether these beta diversity measures differentiate forest from cocoa
+# sites using a Permanova:
+# testing for overdispersion first:
+anova(betadisper(bcdist_sqrt2, tsbf_co$site)) # no overdispersion.
+finalTSBF1test = adonis2(bcdist_sqrt2~site, data = tsbf_co, permutations = 999) 
+# no differences in centroids.
+
+# graphical representation using a PcoA:
+# Computing the PcoA:
+pcoa_tsbf2 = pcoa(bcdist_sqrt2)
+
+# Checking the eigen values: 
+eigplot = ggplot()+ geom_bar(mapping = aes(x = order(pcoa_tsbf2$values$Relative_eig, 
+                                           decreasing = T),
+                                 y = pcoa_tsbf2$values$Relative_eig), 
+                   stat = "identity")+
+  labs(x = "Axes", y= "Variance")+
+  theme_minimal()+theme(plot.background = element_rect(fill = "white"),
+                        axis.ticks.x = element_blank(),
+                        axis.text.x = element_blank())
+# Again quite bad, only 45% of information retained in the first two axes
+
+# Plotting the first two axes (colour = Area):
+axeplot = ggplot()+ geom_point(data= pcoa_tsbf2$vectors, 
+                     mapping = aes(x = Axis.1, y = Axis.2, 
+                                   colour = tsbf_co$site),
+                     shape = 16)+
+  scale_color_manual(values = c("#e31a1c","darkgreen"))+
+  theme_bw()+labs(color = "Sites")+
+  stat_ellipse(data= pcoa_tsbf2$vectors, 
+               mapping = aes(x = Axis.1, y = Axis.2, 
+                             colour = tsbf_co$site),level= 0.95,
+               alpha = 0.1, geom = "polygon")
+
+axeplot2 = ggplot()+ geom_point(data= pcoa_tsbf2$vectors, 
+                     mapping = aes(x = Axis.3, y = Axis.4, 
+                                   colour = tsbf_co$site),
+                     shape = 16)+
+  scale_color_manual(values = c("#e31a1c","darkgreen"))+
+  theme_bw()+labs(color = "Sites")+
+  stat_ellipse(data= pcoa_tsbf2$vectors, 
+               mapping = aes(x = Axis.3, y = Axis.4, 
+                             colour = tsbf_co$site),level= 0.95,
+               alpha = 0.1, geom = "polygon")+
+  theme(legend.position = "none")
+
+eigplot = ggplotGrob(eigplot)
+axeplot = axeplot+annotation_custom(grob = eigplot,
+                          xmin = -1, xmax = -0.25, ymin = -0.97, ymax = -0.22)
+finalTSBF1plot = ggarrange(axeplot, axeplot2, ncol = 2, common.legend = T)
+
+# repeating this steps within the different layers (we have already tested for
+# distortion and euclideanity):
+# # here no differences between sites, we put the loop in comment
+# layers = c("L","10","20")
+# 
+# for (i in layers){
+#   distmat = sqrt(vegdist(tsbf[tsbf$layer == i,taxon_focus]))# dist matrix
+#   anova(betadisper(distmat, tsbf[tsbf$layer == i,"site"])) # no overdispersion.
+#   adonis2(bcdist_sqrt2~site, data = tsbf[tsbf$layer == i,], permutations = 999)
+# 
+#   pcoa_tsbf2 = pcoa(distmat) # pcoa
+#   #eigen values: 
+#   ggplot()+ geom_bar(mapping = aes(x = order(pcoa_tsbf2$values$Relative_eig, 
+#                                              decreasing = T),
+#                                    y = pcoa_tsbf2$values$Relative_eig), 
+#                      stat = "identity")+
+#     xlab("Axes")+ylab("Proportion of variance")+
+#     theme_minimal()
+#     # Plotting the first two axes (colour = Area):
+#     ggplot()+ geom_point(data= pcoa_tsbf2$vectors, 
+#                          mapping = aes(x = Axis.1, y = Axis.2, 
+#                                        colour = tsbf_co$site),
+#                          shape = 16)+
+#     scale_color_manual(values = c("#e31a1c","darkgreen"))+
+#     theme_bw()+labs(color = "Sites")
+#   
+# }
+
 ## C: Species abundances plot: ----
 # Creation of a nice graph showing the pyramid of age abundances instead:
 # data.frame:
@@ -160,15 +264,9 @@ ggplot(data= tsbfplot, mapping = aes(x = as.numeric(rank),
 
 ## D: Species-accumulation curve ----
 
-# Here we create a new dataset where we summed all taxa abundance in the 
-# different layers in each tsbf sites (for the accumulation curve)
-tsbf %>% select(c("site","replicat",all_of(taxon_focus)))%>%
-  group_by(site,replicat)%>%
-  summarise(across(all_of(taxon_focus), sum, na.rm = T), .groups = "drop") ->
-  tsbf_co 
-
-
 # Create the accumulation curve using the specaccum function (method = random):
+# here we use the tsbf_co data, where abundances in the different layers have
+# have been summed.
 Cocoa = specaccum(tsbf_co[tsbf_co$site=="Cocoa",taxon_focus],
           method = "random", permutations = 100,
           ci = 0.95)
@@ -215,20 +313,110 @@ tsbf %>% select(c("site","layer",all_of(taxon_focus)))%>%
   summarise(across(all_of(taxon_focus), sum, na.rm = T), .groups = "drop") ->
   tsbf_la 
 
-# Whittaker plots in the different sub-grouping (exploratory):
-# All:
-plot(as.AbdVector(colSums(tsbf_la[,taxon_focus])))
+
+# Plotting the diversity profiles using the whittaker plots:
+
+datalist = list(cocoa = colSums(tsbf_la[tsbf_la$site == "Cocoa",taxon_focus]),
+                forest = colSums(tsbf_la[tsbf_la$site == "Forest",taxon_focus]),
+                Lco =colSums(tsbf_la[tsbf_la$layer == "L"&
+                                       tsbf_la$site=="Cocoa",taxon_focus]),
+                Lfo = colSums(tsbf_la[tsbf_la$layer == "L"&
+                                        tsbf_la$site=="Forest",taxon_focus]),
+                tenco = colSums(tsbf_la[tsbf_la$layer == "10"&
+                                        tsbf_la$site=="Cocoa",taxon_focus]),
+                tenfo = colSums(tsbf_la[tsbf_la$layer == "10"&
+                                         tsbf_la$site=="Forest",taxon_focus]),
+                twentyco = colSums(tsbf_la[tsbf_la$layer == "20"&
+                                             tsbf_la$site=="Cocoa",taxon_focus]),
+                twentyfo = colSums(tsbf_la[tsbf_la$layer == "20"&
+                                             tsbf_la$site=="Forest",taxon_focus]))
+
+#Whittaker plots in the different sub-grouping (exploratory):
+  # All:
+  plot(as.AbdVector(colSums(tsbf_la[,taxon_focus])))
 # Cocoa:
-as.AbdVector(colSums(tsbf_la[tsbf_la$site == "Cocoa",taxon_focus]))%>%
+as.AbdVector(datalist$cocoa)%>%
   plot()
 # Forest:
-as.AbdVector(colSums(tsbf_la[tsbf_la$site == "Forest",taxon_focus]))%>%
+as.AbdVector(datalist$forest)%>%
   plot()
-
 # maybe do a ggplot combining the two whitakker's plots together. 
 
 
+divcocoa = CommunityProfile(Diversity,datalist$cocoa,
+                 Correction = "None")
+divforest=CommunityProfile(Diversity,datalist$forest,
+                 Correction = "None")
+div10=CommunityProfile(Diversity,datalist$ten,
+                       Correction = "None")
+div20=CommunityProfile(Diversity,datalist$twenty,
+                       Correction = "None")
+divL=CommunityProfile(Diversity,datalist$L,
+                       Correction = "None", q.seq = seq(0,4,0.2))
 
+# Finding a way to compute confidence interval by bootstrapping:
+
+# function to create a new taxa distribution based on the frequency of the ones
+# we obtained using the TSBF method:
+newcom = function(community, q.seq){
+  sampleco = as.vector(table(sample(x = names(community),
+                          prob = as.ProbaVector(community),
+                          size =  sum(community),
+                          replace = T)))
+  return(CommunityProfile(Diversity,sampleco,
+                          Correction = "None", q.seq = q.seq)$y)
+}
+# to check if it works: newcom(datalist$cocoa)
+
+# new functions to repeat community draws repp times (100 times, 200 etc.)
+conf.int = function(community,repp = 10,problow = 0.025,probhigh = 0.975,
+                    q.seq = seq(0,2,0.1)){
+  vectors = lapply(1:repp,function(x)newcom(community, q.seq))# draw repp commmunities
+  matv = t(do.call(cbind,vectors))
+  newvector = split(matv, col(matv))
+  obscom= CommunityProfile(Diversity,community, Correction = "None", q.seq=q.seq)
+  return(list(lowconf = sapply(newvector, quantile,probs = problow),
+              highconf= sapply(newvector, quantile,probs = probhigh),
+              obs = obscom$y ,
+              x = obscom$x))
+}
+
+# we compute confidence interval for all the layers+overall sites in datalist: 
+bootlist = lapply(datalist,conf.int,repp = 500, q.seq = seq(0,4,0.2))
+
+# function to do the graph quickly:
+plotfun = function(bootcocoa, bootforest, title){
+  plotdiv= ggplot()+geom_line(mapping = aes(x = bootcocoa$x, y = bootcocoa$obs),
+                              colour = "#e31a1c", linewidth = 0.9)+
+    theme_bw()+ labs(x = "Order of Diversity",y = "Diversity")+
+    geom_ribbon(mapping = aes(x = bootcocoa$x, ymin = bootcocoa$lowconf,
+                              ymax= bootcocoa$highconf), 
+                alpha = 0.3,colour ="lightgray")+
+    geom_line(mapping = aes(x = bootforest$x, y = bootforest$obs), 
+              colour = "darkgreen", linewidth = 0.9)+
+    geom_ribbon(mapping = aes(x = bootforest$x, ymin = bootforest$lowconf,
+                              ymax= bootforest$highconf), 
+                alpha = 0.3,colour ="lightgray")+
+    # here just to make a legend appear: 
+    geom_line(mapping = aes(x = c(1000,1000), y = c(1000,2000), 
+                            # geom_line just to make a legend appear
+                            colour = c("#e31a1c", "darkgreen")))+
+    scale_color_manual(values = c("#e31a1c", "darkgreen"),# modifying the legend
+                       labels = c("Cocoa","Forest"))+
+    ylim(c(min(c(bootforest$lowconf,bootcocoa$lowconf))-1,
+           c(max(c(bootforest$highconf,bootcocoa$highconf))+1)))+ 
+    xlim(c(0,4))+labs(color = "Sites", title = title)
+  return(plotdiv)
+}
+
+plot1 = plotfun(bootlist$cocoa,bootlist$forest, title = "All layers")
+plot2 = plotfun(bootlist$Lco,bootlist$Lfo, title = "Leaf litter")
+plot3 = plotfun(bootlist$tenco,bootlist$tenfo, title = "0-10 cm")
+plot4 = plotfun(bootlist$twentyco,bootlist$twentyfo, title = "10-20 cm")
+
+ggarrange(plot1, plot2, plot3, plot4, 
+          ncol = 2, nrow = 2,                
+          labels = c("A", "B", "C", "D"), common.legend = T)
 
 #2: Wood decomposition rate analysis: ----
 
@@ -264,7 +452,7 @@ ggplot(data = wood)+
 
 
 
-## B: first model ----
+## A: first model ----
 # (here, a simple linear model with an interaction):
 # Notes: since the response variable is a percentage (bounded between 0 and 100),
 # maybe we have to adopt a generalised linear model (with a beta distribution).
@@ -316,12 +504,12 @@ summary(M_wood) # summary
 cacaomed = woodfauna$faunaproploss[woodfauna$site=="Cacao"]
 woodmed = woodfauna$faunaproploss[woodfauna$site=="Forest"]
 
-wilcox.test(cacaomed,woodmed)
+finalwoodtest = wilcox.test(cacaomed,woodmed)
 # tendency for median to be different, but they are not (over 0.05).
 
 
 
-ggplot()+
+finalwoodplot =ggplot()+
   geom_point(data = woodfauna,
              mapping = aes(x = jitter(as.numeric(as.factor(site)), 0.2), 
                            y = faunaproploss))+
@@ -341,3 +529,4 @@ ggplot()+
                           linetype = factor(c(1,3,3,1,3,3))), col = "red")+
   theme_bw()+theme(legend.position = "none")
 
+rm(cacaomed, woodmed)
