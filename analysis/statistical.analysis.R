@@ -192,7 +192,8 @@ axeplot2 = ggplot()+ geom_point(data= pcoa_tsbf2$vectors,
 eigplot = ggplotGrob(eigplot)
 axeplot = axeplot+annotation_custom(grob = eigplot,
                           xmin = -1, xmax = -0.25, ymin = -0.97, ymax = -0.22)
-finalTSBF1plot = ggarrange(axeplot, axeplot2, ncol = 2, common.legend = T)
+finalTSBF1plot = ggarrange(axeplot, axeplot2, ncol = 2, common.legend = T,
+                           legend = "right")
 
 # repeating this steps within the different layers (we have already tested for
 # distortion and euclideanity):
@@ -262,6 +263,41 @@ ggplot(data= tsbfplot, mapping = aes(x = as.numeric(rank),
                           y = rep(-270,58), label = taxa ))+
   ylab("Abundance")+xlab("Taxa")
 
+### trophic preferences: ----
+
+# creating a vector for indexing columns of interest: 
+trophic_focus = c("phytophagous","saprophagous","predator",
+                  "rhizophagous","xylophagous","fungivore",
+                  "parasitic")
+
+# creating an empty table to fill the values:
+tsbf %>% select(c("ID","site","plot","replicat","layer")) %>%
+  mutate(phytophagous = 0, saprophagous = 0,predator = 0,
+         rhizophagous = 0, xylophagous = 0, fungivore = 0,
+         parasitic = 0) ->tsbftrophic
+
+# filling the values (to be vectorised): 
+for (i in seq_along(tsbf$replicat)){
+  vec = tsbf[i,taxon_focus]
+  for(p in seq_along(vec)){
+    index = which(lexicon$code ==names(vec)[p])
+    for(j in trophic_focus){
+      if(lexicon[index,names(lexicon)==j]==1){
+        tsbftrophic[tsbftrophic$ID==tsbf$ID[i],j]=
+          tsbftrophic[tsbftrophic$ID==tsbf$ID[i],j]+
+          tsbf[i,names(vec)[p]]
+      }
+    }
+  }
+}
+
+# Checking quickly doing a PCA (euclidean distance, not ideal):
+pca_trophic = PCA(tsbftrophic[,trophic_focus],
+                  graph = F)
+fviz_eig(pca_trophic, ncp = 10)# it worked well
+
+fviz_pca(pca_trophic, axes = c(1,2))
+
 ## D: Species-accumulation curve ----
 
 # Create the accumulation curve using the specaccum function (method = random):
@@ -276,7 +312,7 @@ Forest = specaccum(tsbf_co[tsbf_co$site=="Forest",taxon_focus],
 
 # We plot these curves in a very tedious way:
 
-ggplot()+ # Cocoa line:
+finalTSBF3plotbis= ggplot()+ # Cocoa line:
   geom_line(mapping = aes(x = unlist(Cocoa$sites), y = unlist(Cocoa$richness)),
             linewidth = 1.2, col = "#e31a1c", show.legend = T)+
   geom_ribbon(mapping = aes(ymin = unlist(Cocoa$richness) - unlist(Cocoa$sd), 
@@ -416,7 +452,7 @@ plot4 = plotfun(bootlist$twentyco,bootlist$twentyfo, title = "10-20 cm")
 
 finalTSBF3plot =ggarrange(plot1, plot2, plot3, plot4, 
           ncol = 2, nrow = 2,                
-          labels = c("A", "B", "C", "D"), common.legend = T)
+          labels = c("A", "B", "C", "D"), common.legend = T, legend = "right")
 
 #2: Wood decomposition rate analysis: ----
 

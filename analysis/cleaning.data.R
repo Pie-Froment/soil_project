@@ -115,5 +115,24 @@ lamina %>% rename_with(~c("ID","site","plot","replicat","laminalab","hole"))%>%
                           site == "PF"~"Forest"),
          ID= paste(site,plot, replicat,laminalab,hole, sep = "-")) -> lamina
 
+# Importing and merging the lexicon dataset made by Hector: ----
+newlexicon = read.table("data/lexicon.csv", sep = ",", header = T)
+
+# verifying that taxa names and code names are the same between the two lexicon:
+lexicon$order == newlexicon$order
+lexicon$code == newlexicon$code
+
+# there is two hemipteras, getting rid of the second one:
+# it is on line 35, we get rid of it, dirty code to improve later:
+
+newlexicon = newlexicon[-35,]
+# checking again: 
+lexicon$code == newlexicon$code # we re good
+
+lexicon = left_join(newlexicon, lexicon,by = c("order","code"))
+lexicon = lexicon %>% select(-c("trophic.x", "trophic.y"))
+names(lexicon)[names(lexicon)=="xylophagaous"]="xylophagous"
+
+rm(newlexicon)
 
 
