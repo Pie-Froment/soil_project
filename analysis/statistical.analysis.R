@@ -267,16 +267,18 @@ ggplot(data= tsbfplot, mapping = aes(x = as.numeric(rank),
 
 # creating a vector for indexing columns of interest: 
 trophic_focus = c("phytophagous","saprophagous","predator",
-                  "rhizophagous","xylophagous","fungivore",
-                  "parasitic")
+                  "rhizophagous","xylophagous")
 
 # creating an empty table to fill the values:
 tsbf %>% select(c("ID","site","plot","replicat","layer")) %>%
   mutate(phytophagous = 0, saprophagous = 0,predator = 0,
-         rhizophagous = 0, xylophagous = 0, fungivore = 0,
-         parasitic = 0) ->tsbftrophic
+         rhizophagous = 0, xylophagous = 0) ->tsbftrophic
 
 # filling the values (to be vectorised): 
+# when an order has more than one trophic preference, we assume that each 
+# individual only has one (trophic preferences are mutually exclusive). 
+# We assume that each trophic preferences are as common in this order.
+# I equally split the order abundances equally in the order trophic preferences
 for (i in seq_along(tsbf$replicat)){
   vec = tsbf[i,taxon_focus]
   for(p in seq_along(vec)){
@@ -285,18 +287,57 @@ for (i in seq_along(tsbf$replicat)){
       if(lexicon[index,names(lexicon)==j]==1){
         tsbftrophic[tsbftrophic$ID==tsbf$ID[i],j]=
           tsbftrophic[tsbftrophic$ID==tsbf$ID[i],j]+
-          tsbf[i,names(vec)[p]]
+          tsbf[i,names(vec)[p]]/sum(lexicon[index,trophic_focus])
       }
     }
   }
 }
+# checking that the total number of indiv is equal between tsbftrophic and
+# tsbf:
+sum(colSums(tsbftrophic[,trophic_focus])) == sum(colSums(tsbf[,taxon_focus]))
 
-# Checking quickly doing a PCA (euclidean distance, not ideal):
-pca_trophic = PCA(tsbftrophic[,trophic_focus],
+# This loop is considering that each individual in orders with multiple trophic 
+# preferences has every trophic preferences
+# for (i in seq_along(tsbf$replicat)){
+#   vec = tsbf[i,taxon_focus]
+#   for(p in seq_along(vec)){
+#     index = which(lexicon$code ==names(vec)[p])
+#     for(j in trophic_focus){
+#       if(lexicon[index,names(lexicon)==j]==1){
+#         tsbftrophic[tsbftrophic$ID==tsbf$ID[i],j]=
+#           tsbftrophic[tsbftrophic$ID==tsbf$ID[i],j]+
+#           tsbf[i,names(vec)[p]]
+#       }
+#     }
+#   }
+# }
+
+# Investigating the associations between trophic groups and the two habitats
+# by doing a correspondence analysis:
+pca_trophic = CA(tsbftrophic[,trophic_focus],
                   graph = F)
-fviz_eig(pca_trophic, ncp = 10)# it worked well
+eigplot = fviz_eig(pca_trophic, ncp = 10, # it worked well
+         linecolor = NA, title = "")
 
-fviz_pca(pca_trophic, axes = c(1,2))
+pca_trophicp = data.frame(pca_trophic$row$coord)
+
+caplot = fviz_ca_col(pca_trophic, axes =c(1,2),
+             col.col = "black", repel = F, alpha = "cos2",
+            title = "", labelsize = 5, labelfont = "bold")+
+  geom_point(data = pca_trophicp, 
+             mapping = aes(x = Dim.1,y = Dim.2,
+                           color = tsbftrophic$site,
+                           shape =  tsbftrophic$layer), size = 2.5,
+             stroke = 1.4, alpha = 0.7) +
+  scale_shape_manual(values = c(1,2,3))+
+  scale_color_manual(values = c("#e31a1c","darkgreen"))+
+  labs(color = "Sites", shape = "Layers", 
+       alpha = "cos2 (columns)")
+
+finalTSBF2plot = ggarrange(caplot, 
+          eigplot,
+          widths = c(16,7),
+          ncol = 2, labels = c("A","B"))
 
 ## D: Species-accumulation curve ----
 
@@ -565,4 +606,4 @@ finalwoodplot =ggplot()+
                           linetype = factor(c(1,3,3,1,3,3))), col = "red")+
   theme_bw()+theme(legend.position = "none")
 
-rm(cacaomed, woodmed)
+
