@@ -16,7 +16,7 @@ library(ade4) # for multivariate analyses (PcoA)
 library(ape) # for multivariate analyses (PcoA)
 
 library(entropart) # for diversity analyses
-library(gtools) # because of this *** order() function that gives wrong order.
+library(gtools) # to try the order() function that gives wrong order.
 library(ggpubr)
 
 # setting the seed:
@@ -262,6 +262,9 @@ ggplot(data= tsbfplot, mapping = aes(x = as.numeric(rank),
   geom_text(mapping = aes(x = as.numeric(rank),
                           y = rep(-270,58), label = taxa ))+
   ylab("Abundance")+xlab("Taxa")
+
+# Here, probably do non-parametric tests to compare for median abundances of 
+# the different orders between the forest and the cocoa plots: 
 
 ### trophic preferences: ----
 
@@ -561,7 +564,7 @@ summary(M_wood) # summary
 ggplot(data = woodfauna)+
   geom_boxplot(mapping = aes(x = site, y = faunaproploss))
 
-M_wood = lmer(faunaproploss~site, data = woodfauna)
+M_wood = lm(faunaproploss~site, data = woodfauna)
 
 hist(resid(M_wood))# distribution of residuals: not normal
 
@@ -581,7 +584,7 @@ summary(M_wood) # summary
 cacaomed = woodfauna$faunaproploss[woodfauna$site=="Cacao"]
 woodmed = woodfauna$faunaproploss[woodfauna$site=="Forest"]
 
-finalwoodtest = wilcox.test(cacaomed,woodmed)
+finalwoodtest = wilcox.test(cacaomed,woodmed, conf.int = T)
 # tendency for median to be different, but they are not (over 0.05).
 
 

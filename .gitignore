@@ -6,5 +6,46 @@
 papers/
 Consignes_etudiants_projet_EFT_2024-2025.pdf
 
+rapport/
+
 *.docx
 *.xcf
+
+# History files
+.Rhistory
+.Rapp.history
+
+# Session Data files
+.RData
+
+# Package file
+.Rbuildignore
+
+# RStudio files
+.Rproj.user/
+
+# knitr and R markdown default cache directories
+/cache/
+/figure/
+/*_files/
+/*_cache/
+/libs/
+
+# Latex files
+*.aux
+*-blx.bib
+*.log
+*.xml
+*.bbl
+*.bcf
+*.blg
+*.synctex.gz
+*.out
+*.toc
+*-concordance.tex
+*(busy)
+*.tex
+!EcoFoGBeamer.tex
+*.nav
+*.snm
+*.vrb
