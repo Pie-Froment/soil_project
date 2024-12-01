@@ -29,18 +29,19 @@ set.seed(76)
 # source("analysis/cleaning.data.R")
 
 
-#1: TSBF diversity analysis: ----
-
-# list of trophic levels we have so far:
-unique(unlist(str_split(lexicon$trophic, "-")))
-
 # for the analyses, we get rid of the yellow and green eggs taxon (probably
-# fertilisers) and of unknonwn taxons + taxa with 0 observations:
+# fertilisers) and of unknonwn taxons + taxa with 0 observations.
+# We create a taxon_focus taxa list which we will use for our analyses to focus
+# only on taxa of interests:
 taxon_focus = lexicon$code
 #  taxa with 0 observations:
 selec= names(colSums(tsbf[,taxon_focus])[colSums(tsbf[,taxon_focus])==0])
 taxon_focus = taxon_focus[!(taxon_focus%in%c("yl.egg","gr.egg","unk", selec))]
 rm(selec)
+
+
+#1: TSBF diversity analysis: ----
+
 
 ## A: Correspondence analysis: ----
 
@@ -147,7 +148,7 @@ is.euclid(bcdist_sqrt2)
 # sites using a Permanova:
 # testing for overdispersion first:
 anova(betadisper(bcdist_sqrt2, tsbf_co$site)) # no overdispersion.
-finalTSBF1test = adonis2(bcdist_sqrt2~site, data = tsbf_co, permutations = 999) 
+finalTSBFbetatest = adonis2(bcdist_sqrt2~site, data = tsbf_co, permutations = 999) 
 # no differences in centroids.
 
 # graphical representation using a PcoA:
@@ -192,12 +193,13 @@ axeplot2 = ggplot()+ geom_point(data= pcoa_tsbf2$vectors,
 eigplot = ggplotGrob(eigplot)
 axeplot = axeplot+annotation_custom(grob = eigplot,
                           xmin = -1, xmax = -0.25, ymin = -0.97, ymax = -0.22)
-finalTSBF1plot = ggarrange(axeplot, axeplot2, ncol = 2, common.legend = T,
+finalTSBFbetaplot = ggarrange(axeplot, axeplot2, ncol = 2, common.legend = T,
                            legend = "right")
 
 # repeating this steps within the different layers (we have already tested for
 # distortion and euclideanity):
-# # here no differences between sites, we put the loop in comment
+# Here no differences between sites, we put the loop in comment
+
 # layers = c("L","10","20")
 # 
 # for (i in layers){
@@ -223,8 +225,52 @@ finalTSBF1plot = ggarrange(axeplot, axeplot2, ncol = 2, common.legend = T,
 #   
 # }
 
-## C: Species abundances plot: ----
-# Creation of a nice graph showing the pyramid of age abundances instead:
+## C: Species abundances analyses: ----
+
+### Abundances between sites ----
+
+# Tests to compare for median abundances of 
+# the different orders between the forest and the cocoa plots: 
+
+# We will us the tsbf_co matrix for our analyse, which summed abundances of all
+# orders at the different layers (litter, 0-10cm and 0-20cm) for each TSBF 
+# digging site.
+
+# We will restrain our analyses for taxa counted at least 10 times overall:
+
+taxa_test = 
+  names(colSums(tsbf_co[,taxon_focus])[colSums(tsbf_co[,taxon_focus])>10])
+
+testres = data.frame(taxa = taxon_focus, w = NA, pw = NA,
+                     Fstat = NA, pF = NA, df = NA, shaptest = NA,
+                     bptest = NA, dwtest = NA)
+for(i in taxa_test){
+  # non-parametric wilcox.test
+  testwil = wilcox.test(unlist(tsbf_co[tsbf_co$site == "Forest",i]),
+                        unlist(tsbf_co[tsbf_co$site == "Cocoa",i]))
+  testres$w[testres$taxa == i] = testwil$statistic
+  testres$pw[testres$taxa == i] = testwil$p.value
+  
+  # We also look at analyses of variances: 
+  testan = lm(get(i)~site, data = tsbf_co)
+  testres$Fstat[testres$taxa == i] = Anova(testan)$`F value`[1]
+  testres$df[testres$taxa == i] = paste(Anova(testan)$Df[1],",",
+                                        Anova(testan)$Df[2])
+  testres$pF[testres$taxa == i] = Anova(testan)$`Pr(>F)`[1]
+  testres$shaptest[testres$taxa == i] = shapiro.test(resid(testan))$p.value
+  testres$bptest[testres$taxa == i] = bptest(testan)$p.value
+  testres$dwtest[testres$taxa == i] = dwtest(testan)$p.value
+  
+}
+rm(testan, i , testwil)
+# Looking at testres, we see that there is no big differences of significances
+# between wilcox rank test and anovas. Only differences is that the normality is
+# breached for some taxa in the anova. Therefore, I choose the wilcox test to
+# compare abundances of each taxon between the two sites.
+
+### Pyramid graph ----
+# Creation of a nice graph showing the pyramid of age abundances. Show also the 
+# significance obtained from the wilcox test inside "testres".
 # data.frame:
 tsbf %>% select(c("site",all_of(taxon_focus)))%>%
   group_by(site)%>%
@@ -245,26 +291,39 @@ rm(newvec,col)
 tsbfplot$abundance = ifelse(tsbfplot$site == "Cocoa",
                             -tsbfplot$abundance,
                             tsbfplot$abundance)
+tsbfplot %>% 
+  left_join(testres, by = "taxa") %>%
+  select(site,taxa,abundance,rank,pw) -> tsbfplot
+
+# Computing labels position to show significances of wilcox tests:
+labelss = unlist(tsbfplot[tsbfplot$site == "Cocoa", "abundance"])
+
+sign = c(unlist(ifelse(tsbfplot[tsbfplot$site=="Cocoa","pw"] > 0 &
+                       tsbfplot[tsbfplot$site=="Cocoa","pw"]<0.05 & 
+                       !is.na(tsbfplot[tsbfplot$site=="Cocoa","pw"]),
+                     "*","")))
 
 #Plotting abundances:
-ggplot(data= tsbfplot, mapping = aes(x = as.numeric(rank),
-                                             y = abundance, fill = site))+
-  geom_bar(stat = "identity", position = "identity")+
+finalTSBFabundanceplot = ggplot()+
+  geom_bar(data= tsbfplot, mapping = aes(x = as.numeric(rank),
+                                         y = abundance, fill = site),
+           stat = "identity", position = "identity")+
   scale_fill_manual(values = c("#e31a1c","darkgreen"))+
   coord_flip()+
   theme_minimal()+
-  theme(panel.grid.major.y= element_blank(),
-        panel.grid.minor.y= element_blank(),
-        axis.text.y=element_blank())+
   scale_y_continuous(breaks = c(seq(-300,300,100)),
                      labels = c(seq(300,0,-100),seq(100,300,100)),
                      limits = c(-300,300))+
-  geom_text(mapping = aes(x = as.numeric(rank),
-                          y = rep(-270,58), label = taxa ))+
-  ylab("Abundance")+xlab("Taxa")
+  scale_x_continuous(breaks = c(1:29),
+                     labels = unique(tsbfplot$taxa[order(tsbfplot$rank)]))+
+  ylab("Abundance")+xlab("Taxa (order)")+
+  geom_text(mapping = aes(x = tsbfplot$rank[tsbfplot$site=="Cocoa"],
+                          y = labelss-10, 
+                          label = sign), fontface = "bold", size = 6)+
+  theme(panel.grid.minor.y = element_blank(),
+        axis.text.y = element_text(angle = 0))
 
-# Here, probably do non-parametric tests to compare for median abundances of 
-# the different orders between the forest and the cocoa plots: 
+
 
 ### trophic preferences: ----
 
@@ -337,7 +396,7 @@ caplot = fviz_ca_col(pca_trophic, axes =c(1,2),
   labs(color = "Sites", shape = "Layers", 
        alpha = "cos2 (columns)")
 
-finalTSBF2plot = ggarrange(caplot, 
+finalTSBFtrpohicplot = ggarrange(caplot, 
           eigplot,
           widths = c(16,7),
           ncol = 2, labels = c("A","B"))
@@ -356,7 +415,7 @@ Forest = specaccum(tsbf_co[tsbf_co$site=="Forest",taxon_focus],
 
 # We plot these curves in a very tedious way:
 
-finalTSBF3plotbis= ggplot()+ # Cocoa line:
+finalTSBFaccumplot= ggplot()+ # Cocoa line:
   geom_line(mapping = aes(x = unlist(Cocoa$sites), y = unlist(Cocoa$richness)),
             linewidth = 1.2, col = "#e31a1c", show.legend = T)+
   geom_ribbon(mapping = aes(ymin = unlist(Cocoa$richness) - unlist(Cocoa$sd), 
@@ -422,17 +481,12 @@ as.AbdVector(datalist$forest)%>%
   plot()
 # maybe do a ggplot combining the two whitakker's plots together. 
 
+# 
+# divcocoa = CommunityProfile(Diversity,datalist$cocoa,
+#                  Correction = "None")
+# divforest=CommunityProfile(Diversity,datalist$forest,
+#                  Correction = "None")
 
-divcocoa = CommunityProfile(Diversity,datalist$cocoa,
-                 Correction = "None")
-divforest=CommunityProfile(Diversity,datalist$forest,
-                 Correction = "None")
-div10=CommunityProfile(Diversity,datalist$ten,
-                       Correction = "None")
-div20=CommunityProfile(Diversity,datalist$twenty,
-                       Correction = "None")
-divL=CommunityProfile(Diversity,datalist$L,
-                       Correction = "None", q.seq = seq(0,4,0.2))
 
 # Finding a way to compute confidence interval by bootstrapping:
 
@@ -494,7 +548,7 @@ plot2 = plotfun(bootlist$Lco,bootlist$Lfo, title = "Leaf litter")
 plot3 = plotfun(bootlist$tenco,bootlist$tenfo, title = "0-10 cm")
 plot4 = plotfun(bootlist$twentyco,bootlist$twentyfo, title = "10-20 cm")
 
-finalTSBF3plot =ggarrange(plot1, plot2, plot3, plot4, 
+finalTSBFdivplot =ggarrange(plot1, plot2, plot3, plot4, 
           ncol = 2, nrow = 2,                
           labels = c("A", "B", "C", "D"), common.legend = T, legend = "right")
 
