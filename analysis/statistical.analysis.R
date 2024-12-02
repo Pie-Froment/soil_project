@@ -401,6 +401,14 @@ finalTSBFtrpohicplot = ggarrange(caplot,
           widths = c(16,7),
           ncol = 2, labels = c("A","B"))
 
+# to check rhizophagous projection: 
+# fviz_ca_biplot(pca_trophic, axes = c(1,4))
+
+# mm = cbind(pca_trophic$row$coord, tsbftrophic$site,
+#       tsbftrophic$layer)
+pca_trophic$col$cos2
+
+
 ## D: Species-accumulation curve ----
 
 # Create the accumulation curve using the specaccum function (method = random):
