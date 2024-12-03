@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.11.30)  2 DEC 2024 23:37
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.11.30)  3 DEC 2024 00:10
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -877,12 +877,6 @@ LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 20
 (c:/Users/pierrot/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 )
-<images/methodmaps.png, id=289, 403.9893pt x 351.714pt>
-File: images/methodmaps.png Graphic file (type png)
-<use images/methodmaps.png>
-Package pdftex.def Info: images/methodmaps.png  used on input line 218.
-(pdftex.def)             Requested size: 386.97464pt x 336.901pt.
-
 
 
 
@@ -894,30 +888,22 @@ Package fancyhdr Warning: \headheight is too small (11.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-9.86551pt}.
 
 [3]
-
-Package fancyhdr Warning: \headheight is too small (11.0pt): 
-(fancyhdr)                Make it at least 20.86551pt, for example:
-(fancyhdr)                \setlength{\headheight}{20.86551pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-(fancyhdr)                \addtolength{\topmargin}{-9.86551pt}.
-
-[4 <./images/methodmaps.png>]
-<rapport_files/figure-latex/abundance-1.png, id=324, 469.755pt x 325.215pt>
+<rapport_files/figure-latex/abundance-1.png, id=316, 469.755pt x 325.215pt>
 File: rapport_files/figure-latex/abundance-1.png Graphic file (type png)
 <use rapport_files/figure-latex/abundance-1.png>
-Package pdftex.def Info: rapport_files/figure-latex/abundance-1.png  used on input line 257.
-(pdftex.def)             Requested size: 187.21773pt x 129.61226pt.
+Package pdftex.def Info: rapport_files/figure-latex/abundance-1.png  used on input line 244.
+(pdftex.def)             Requested size: 386.95773pt x 267.8938pt.
 
 
-<rapport_files/figure-latex/trophic-1.png, id=336, 469.755pt x 325.215pt>
+<rapport_files/figure-latex/trophic-1.png, id=329, 469.755pt x 325.215pt>
 File: rapport_files/figure-latex/trophic-1.png Graphic file (type png)
 <use rapport_files/figure-latex/trophic-1.png>
-Package pdftex.def Info: rapport_files/figure-latex/trophic-1.png  used on input line 279.
+Package pdftex.def Info: rapport_files/figure-latex/trophic-1.png  used on input line 266.
 (pdftex.def)             Requested size: 386.95773pt x 267.8938pt.
-<rapport_files/figure-latex/wood-1.png, id=337, 469.755pt x 325.215pt>
+<rapport_files/figure-latex/wood-1.png, id=330, 469.755pt x 325.215pt>
 File: rapport_files/figure-latex/wood-1.png Graphic file (type png)
 <use rapport_files/figure-latex/wood-1.png>
-Package pdftex.def Info: rapport_files/figure-latex/wood-1.png  used on input line 292.
+Package pdftex.def Info: rapport_files/figure-latex/wood-1.png  used on input line 279.
 (pdftex.def)             Requested size: 187.21773pt x 129.61226pt.
 
 
@@ -928,7 +914,15 @@ Package fancyhdr Warning: \headheight is too small (11.0pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-9.86551pt}.
 
-[5 <./rapport_files/figure-latex/abundance-1.png>]
+[4]
+
+Package fancyhdr Warning: \headheight is too small (11.0pt): 
+(fancyhdr)                Make it at least 20.86551pt, for example:
+(fancyhdr)                \setlength{\headheight}{20.86551pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+(fancyhdr)                \addtolength{\topmargin}{-9.86551pt}.
+
+[5 <./rapport_files/figure-latex/abundance-1.png> <./rapport_files/figure-latex/trophic-1.png>]
 
 
 
@@ -939,13 +933,7 @@ Package fancyhdr Warning: \headheight is too small (11.0pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-9.86551pt}.
 
-[6 <./rapport_files/figure-latex/trophic-1.png> <./rapport_files/figure-latex/wood-1.png>]
-Underfull \vbox (badness 1990) has occurred while \output is active []
-
-
-
-
-Underfull \vbox (badness 4927) has occurred while \output is active []
+[6 <./rapport_files/figure-latex/wood-1.png>]
 
 
 
@@ -957,22 +945,31 @@ Package fancyhdr Warning: \headheight is too small (11.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-9.86551pt}.
 
 [7]
-
-<rapport_files/figure-latex/accumcurve-1.png, id=416, 469.755pt x 325.215pt>
+<images/methodmaps.png, id=421, 403.9893pt x 351.714pt>
+File: images/methodmaps.png Graphic file (type png)
+<use images/methodmaps.png>
+Package pdftex.def Info: images/methodmaps.png  used on input line 334.
+(pdftex.def)             Requested size: 386.97464pt x 336.901pt.
+<rapport_files/figure-latex/accumcurve-1.png, id=422, 469.755pt x 325.215pt>
 File: rapport_files/figure-latex/accumcurve-1.png Graphic file (type png)
 <use rapport_files/figure-latex/accumcurve-1.png>
-Package pdftex.def Info: rapport_files/figure-latex/accumcurve-1.png  used on input line 345.
+Package pdftex.def Info: rapport_files/figure-latex/accumcurve-1.png  used on input line 347.
 (pdftex.def)             Requested size: 386.95773pt x 267.8938pt.
-<rapport_files/figure-latex/diversity-1.png, id=417, 469.755pt x 325.215pt>
+<rapport_files/figure-latex/diversity-1.png, id=423, 469.755pt x 325.215pt>
 File: rapport_files/figure-latex/diversity-1.png Graphic file (type png)
 <use rapport_files/figure-latex/diversity-1.png>
-Package pdftex.def Info: rapport_files/figure-latex/diversity-1.png  used on input line 358.
+Package pdftex.def Info: rapport_files/figure-latex/diversity-1.png  used on input line 360.
 (pdftex.def)             Requested size: 386.95773pt x 267.8938pt.
-<rapport_files/figure-latex/betadiv-1.png, id=418, 469.755pt x 325.215pt>
+<rapport_files/figure-latex/betadiv-1.png, id=424, 469.755pt x 325.215pt>
 File: rapport_files/figure-latex/betadiv-1.png Graphic file (type png)
 <use rapport_files/figure-latex/betadiv-1.png>
-Package pdftex.def Info: rapport_files/figure-latex/betadiv-1.png  used on input line 371.
+Package pdftex.def Info: rapport_files/figure-latex/betadiv-1.png  used on input line 373.
 (pdftex.def)             Requested size: 386.95773pt x 267.8938pt.
+
+Overfull \hbox (202.33766pt too wide) in alignment at lines 384--435
+ [] [] [] [] [] [] [] [] [] 
+ []
+
 (./rapport.bbl
 Underfull \hbox (badness 1917) in paragraph at lines 17--19
 \T1/ptm/m/n/10 (+20) y-sis of Vari-ance ( <span style="font-variant:small-
@@ -1011,6 +1008,8 @@ Overfull \hbox (8.79686pt too wide) in paragraph at lines 55--58
 
 
 
+
+
 Package fancyhdr Warning: \headheight is too small (11.0pt): 
 (fancyhdr)                Make it at least 20.86551pt, for example:
 (fancyhdr)                \setlength{\headheight}{20.86551pt}.
@@ -1025,10 +1024,7 @@ Package fancyhdr Warning: \headheight is too small (11.0pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-9.86551pt}.
 
-[9 <./rapport_files/figure-latex/accumcurve-1.png> <./rapport_files/figure-latex/diversity-1.png>]
-
-
-
+[9 <./images/methodmaps.png> <./rapport_files/figure-latex/accumcurve-1.png>]
 
 Package fancyhdr Warning: \headheight is too small (11.0pt): 
 (fancyhdr)                Make it at least 20.86551pt, for example:
@@ -1036,12 +1032,12 @@ Package fancyhdr Warning: \headheight is too small (11.0pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-9.86551pt}.
 
-[10 <./rapport_files/figure-latex/betadiv-1.png>]
+[10 <./rapport_files/figure-latex/diversity-1.png> <./rapport_files/figure-latex/betadiv-1.png>]
+
+
 Underfull \hbox (badness 1454) in paragraph at lines 152--154
 []\T1/ptm/m/n/10 (+20) Saj, S. (2023) Pro-jetC2G2: vers la Ca-pac-i-ta-tion et
  []
-
-
 
 )
 
@@ -1052,7 +1048,22 @@ Package fancyhdr Warning: \headheight is too small (11.0pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-9.86551pt}.
 
-[11] 
+[11]
+
+
+
+
+Package fancyhdr Warning: \headheight is too small (11.0pt): 
+(fancyhdr)                Make it at least 20.86551pt, for example:
+(fancyhdr)                \setlength{\headheight}{20.86551pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+(fancyhdr)                \addtolength{\topmargin}{-9.86551pt}.
+
+[12
+
+
+
+] 
 enddocument/afterlastpage: lastpage setting LastPage.
 (./rapport.aux)
  ***********
@@ -1063,18 +1074,18 @@ Package rerunfilecheck Info: File `rapport.out' has not changed.
 (rerunfilecheck)             Checksum: FFBDD5706873ADC9EEE309AD961E5F9F;3651.
  ) 
 Here is how much of TeX's memory you used:
- 20868 strings out of 475222
- 342359 string characters out of 5764501
- 805915 words of memory out of 5000000
- 42901 multiletter control sequences out of 15000+600000
- 649103 words of font info for 406 fonts, out of 8000000 for 9000
+ 20876 strings out of 475222
+ 342457 string characters out of 5764501
+ 821099 words of memory out of 5000000
+ 42906 multiletter control sequences out of 15000+600000
+ 648992 words of font info for 406 fonts, out of 8000000 for 9000
  38 hyphenation exceptions out of 8191
- 90i,13n,100p,2057b,664s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 90i,13n,100p,2079b,680s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <c:/Users/pierrot/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/Users/pierrot/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/Users/pierrot/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb><c:/Users/pierrot/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb><c:/Users/pierrot/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmb8a.pfb><c:/Users/pierrot/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb><c:/Users/pierrot/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on rapport.pdf (11 pages, 2571656 bytes).
+Output written on rapport.pdf (12 pages, 2908094 bytes).
 PDF statistics:
- 498 PDF objects out of 1000 (max. 8388607)
- 431 compressed objects within 5 object streams
- 85 named destinations out of 1000 (max. 500000)
+ 510 PDF objects out of 1000 (max. 8388607)
+ 442 compressed objects within 5 object streams
+ 88 named destinations out of 1000 (max. 500000)
  102604 words of extra memory for PDF output out of 106986 (max. 10000000)
 

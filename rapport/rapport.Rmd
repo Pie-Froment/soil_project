@@ -29,8 +29,8 @@ preamble: >
 bibliography: references.bib
 lang: en-UK
 babel: english
-keywordlabel: Mots-clés # Keywords
-corrauthorlabel: Contact # Corresponding author
+keywordlabel: Keywords
+corrauthorlabel: 
 always_allow_html: yes
 output:
   bookdown::pdf_book:
@@ -42,7 +42,7 @@ output:
   bookdown::word_document2: default
   bookdown::html_document2:
     theme: sandstone
-    toc: false
+    toc: no
     toc_float: false
   header-includes:
     \newcommand{\beginsupplement}{\setcounter{table}{0}\renewcommand{\thetable}{S\arabic{table}} \setcounter{figure}{0} \renewcommand{\thefigure}{S\arabic{figure}}}
@@ -134,7 +134,7 @@ To study soil biodiversity, focusing on soil macrofauna is a good start. Macrofa
 
 Factors that can explain the huge fauna diversity in soil involve niche partitioning, notably through the diversity and the amount of food resources [@Anderson1975;@potapov_feeding_2022]. Many studies related soil fauna diversity to litter traits [@moco_relationships_2010;@laossi_effects_2008], which are directly influenced by tree species of a habitat [@korboulewsky_how_2016;@rousseau_shade_2021]. However, there can be a high diversity of soil food resources without a high diversity of agroforestry associated trees. In cocoa-based agroforestry systems, the effect of shade tree identity and functional group on soil macrofauna appears to be dominant over the effect of shade tree diversity [@laossi_effects_2008;@rousseau_shade_2021;@wardle_influence_2006]. The presence of Inga species in the system seems to influence soil macrofauna [@rousseau_shade_2021], probably because of its N-fixation capacity [@blanchart_long-term_2006;@kaspari_biogeochemistry_2009;@rousseau_shade_2021;@velasquez_soil_2012]. However, the influence of agroforestry shade tree identity on communities can vary with the plantation management and fertilisation [@sauvadet_shade_2019].
 
-In French Guyana, the C2G2 project is a recent example of experimental tropical cocoa plantations in agroforestry that includes shade trees [@saj_projetc2g2_2023]. One of the C2G2 project plantation is based in the Combi station, Sinnamary, where cocoa trees are intercropped with Inga edulis. This agroforestry system aims at increasing plantation resilience, and reducing impacts on the environment. A previous study in species diverse forests has found beneficial effect of cocoa agroforestry plantation on soil fauna communities [@da_silva_moco_soil_2009]. As a species-poor plantations with monospecific shade trees, Combi plantations could affect fauna communities differently.
+In French Guiana, the C2G2 project is a recent example of experimental tropical cocoa plantations in agroforestry that includes shade trees [@saj_projetc2g2_2023]. One of the C2G2 project plantation is based in the Combi station, Sinnamary, where cocoa trees are intercropped with Inga edulis. This agroforestry system aims at increasing plantation resilience, and reducing impacts on the environment. A previous study in species diverse forests has found beneficial effect of cocoa agroforestry plantation on soil fauna communities [@da_silva_moco_soil_2009]. As a species-poor plantations with monospecific shade trees, Combi plantations could affect fauna communities differently.
 
 In the present research, we therefore examined the following question: how do soil macrofauna communities differ between the Combi cocoa agroforestry plantation, and a species-rich natural undisturbed forest? Comparing the Combi cocoa plantation with a nearby tropical coastal rainforest, we tested the hypothesis that the differences in quantity and in diversity of organic matter between these two sites has cascading effects on soil macrofauna, and induces differences in soil communities. We carried out the Tropical Soil Biodiversity and Fertility (TSBF) method and wood decomposition assessments to test three predictions. First, that there is a higher abundance of macrofauna in the agroforestry plots because of fertilisation, and a higher leaf litter production. Second, that the much greater tree diversity in the secondary forest separates resources into more niches, leading to a higher overall alpha diversity of soil macrofauna, and differences in beta-diversity between agroforestry and forest soil communities. Third, that xylophagous and saprophagous taxa are mostly found and more active in the forest because of a higher prevalence of dead wood. 
 
@@ -156,10 +156,6 @@ In order to assess wood decomposer activity in the two habitats, we measured the
 The same protocol was carried out at both the Paracou and Combi sites. Pairs of mesh bags (one wide-mesh, one tight-mesh) each containing two depressors, were buried under leaf litter in a cross pattern. Four pairs of bags surrounded a central pair of bags at a distance of 15 m, at each of the four cardinal points (Figure \@ref(fig:method)). We repeated this cross-pattern design in two locations at each site. At the Combi site, we repeated this design at the centre of the two biggest cocoa-Inga sub-plantations. At the Paracou site, we chose two accessible locations from the forest path in plot number 6, maintaining the same distance between the two locations than in the Combi site for consistency.    
 
 ### Soil macrofauna diversity and abundances
-
-```{r method, echo = FALSE, fig.cap="Study region (A), sites (B) and sampling design (C) used for wood decomposition assessments (D) and TSBF assessments (E). \\textit{The study region is indicated in A (red rectangle). The Combi and Paracou research stations' locations near the town of Sinnamary are shown in B (blue dots). In each site, TSBF and wood decomposition assessments were conducted following the cross pattern in C. D shows two tongue depressors buried under the leaf litter. E shows the sampling of the first 10 cm of soil following the TSBF method.}",fig.env= "figure*", out.extra="" }
-knitr::include_graphics("images/methodmaps.png")
-```
 
 We adapted the Tropical Soil Biodiversity and Fertility (TSBF) method to assess soil biodiversity and fertility in the agroforestry and forest plots [@anderson_tropical_1989]. The TSBF method is commonly used to study the diversity and abundance of soil macrofauna. A standardised sampling method, it permits soil biodiversity comparison between different communities. We collected visible fauna in 25 by 25 cm quadrats in three different soil layers: the leaf litter, the first 10 cm of soil, and soil at 10-20 cm depth. We decided to exclude soil at 20-30 cm depth, usually included in TSBF sampling, as it contains a negligible amount of macrofauna diversity and abundance. We conducted the TSBF method at both the Paracou and Combi sites in the same areas used to bury tongue depressors. The TSBF assessments were carried out at approximately 30 cm of the bag burial sites, but in only one of the locations at both the Combi and Paracou stations because of the labour-intensive nature of the TSBF method. In Combi, we selected the most accessible of the two subplots, and in Paracou, the location with the least roots to facilitate soil sampling. We then characterised the organisms we sampled at the order level, as it simplifies their identification while retaining information about macrofauna trophic levels and functional groups [following, @decaens_identification_2015].
 
@@ -185,7 +181,7 @@ To further assess the greater prevalence of xylophages in the forest, we estimat
 ## Differences in macrofaunal abundances 
 
 
-```{r abundance, echo=FALSE, fig.cap="Abundances of macrofauna orders in the forest and in the agroforestry cocoa plantation. \\textit{Taxa orders are arranged from most (Isoptera) to least sampled. Only isopods, collembolas and blattopteras differed in abundance between the two sites, and were mostly found in the cocoa plantation. Wilcoxon rank-Sum tests significative at the alpha risk of 5% are indicated by a *.  Refer to Annexe 1 for the signification of the order code names.}"}
+```{r abundance, echo=FALSE, fig.cap="Abundances of macrofauna orders in the forest and in the agroforestry cocoa plantation. \\textit{Taxa orders are arranged from most (Isoptera) to least sampled. Only isopods, collembolas and blattopteras differed in abundance between the two sites, and were mostly found in the cocoa plantation. Wilcoxon rank-Sum tests significative at the alpha risk of 5% are indicated by a *.  Refer to Table S1 for the signification of the order code names.}", fig.env= "figure*", out.extra="",dpi=200 }
 plot(finalTSBFabundanceplot)
 
 ```
@@ -198,12 +194,12 @@ For combined soil layer, cocoa and forest TSBF samples had equivalent diversitie
 The projection of Bray-Curtis square-root distances using a PcoA maintains approximately 76% of the variance in the first five dimensions. We decided to keep only the first four dimensions (approximately 67% of the variance) to simplify our interpretation of the PcoA (Figure \@ref(fig:betadiv)). Bray Curtis distances do not distinguish forest from agroforestry TSBF samples. Distances between agroforestry and forest samples are not greater than distances between samples within forest and agroforestry plots (PERMANOVA, pseudoF = 1.115, df = 1,8, p = 0.267, Figure \@ref(fig:betadiv)).  
 
 ## Trophic preferences in the two sites
-```{r trophic, echo=FALSE, fig.cap="Association between trophic preferences and TSBF samples sites. \\textit{The distribution of variance associated with each dimension is shown in B. Trophic preferences and TSBF samples are projected in the first two dimensions (A). Projection quality of column profiles (trophic preferences, cos2) is indicated by points’ transparency. Projection qualities of TSBF samples on the first two dimensions have not been included for visibility. Crosses represent TSBF samples from the leaf litter (L), circles from the first 10 cm of soil (10), and triangles from samples of soil at 10-20 cm depth (20).}",fig.env= "figure*", out.extra="" }
+```{r trophic, echo=FALSE, fig.cap="Association between trophic preferences and TSBF samples sites. \\textit{The distribution of variance associated with each dimension is shown in B. Trophic preferences and TSBF samples are projected in the first two dimensions (A). Projection quality of column profiles (trophic preferences, cos2) is indicated by points’ transparency. Projection qualities of TSBF samples on the first two dimensions have not been included for visibility. Crosses represent TSBF samples from the leaf litter (L), circles from the first 10 cm of soil (10), and triangles from samples of soil at 10-20 cm depth (20).}",fig.env= "figure*", out.extra="",dpi=200 }
 plot(finalTSBFtrpohicplot)
 ```
 
 
-```{r wood, echo=FALSE, fig.cap= "Differences in the proportion of mass lost between the wide-mesh bags and the tight-mesh bags in the Cocoa and Forest sites. \\textit{Medians are indicated by the thick red lines, and 25% and 75% quantiles by the dotted red lines.}"}
+```{r wood, echo=FALSE, fig.cap= "Differences in the proportion of mass lost between the wide-mesh bags and the tight-mesh bags in the Cocoa and Forest sites. \\textit{Medians are indicated by the thick red lines, and 25% and 75% quantiles by the dotted red lines.}",dpi=200}
 plot(finalwoodplot)
 
 ```
@@ -250,25 +246,35 @@ We would like to thank Irene and Raphaël for having supervised us. Many thanks 
 
 # Supplementary material
 
-R codes and statistical analyses available at: https://github.com/Pie-Froment/soil_project/tree/main/rapport
+R codes and statistical analyses available [here](https://github.com/Pie-Froment/soil_project/tree/main/rapport) 
 
 
 \beginsupplement
 
-```{r accumcurve, echo=FALSE, fig.cap= "Order accumulation curves between cocoa plantation and the natural forest. \\textit{Curves were obtained using the speccaccum function (vegan R package) with 100 permutations to obtain the 95% confidence intervals (in grey).}", fig.env= "figure*", out.extra=""}
+```{r method, echo = FALSE, fig.cap="Study region (A), sites (B) and sampling design (C) used for wood decomposition assessments (D) and TSBF assessments (E). \\textit{The study region is indicated in A (red rectangle). The Combi and Paracou research stations' locations near the town of Sinnamary are shown in B (blue dots). In each site, TSBF and wood decomposition assessments were conducted following the cross pattern in C. D shows two tongue depressors buried under the leaf litter. E shows the sampling of the first 10 cm of soil following the TSBF method.}",fig.env= "figure*", out.extra="" }
+knitr::include_graphics("images/methodmaps.png")
+```
+
+```{r accumcurve, echo=FALSE, fig.cap= "Order accumulation curves between cocoa plantation and the natural forest. \\textit{Curves were obtained using the speccaccum function (vegan R package) with 100 permutations to obtain the 95% confidence intervals (in grey).}", fig.env= "figure*", out.extra="",dpi=200}
 plot(finalTSBFaccumplot)
 
 ```
 
-```{r diversity, echo=FALSE, fig.cap= "Diversity profiles of forest and cocoa plantation samples for all soil layer (A), and only the leaf litter (B), the first 10 cm of soil (C), and soil at 10-20 cm depth (D). \\textit{Curves show the evolution of diversity against the order of diversity. They were obtained using the CommunityProfile function (entropart R package, Marcon 2015). 95% confidence intervals (in grey) were computed by drawing 500 hypothetical communities from observed order frequencies. Note that confidence intervals for orders of diversity between 0 and 1 are mostly under the curves, as no non-sampled orders can be drawn from observed frequencies.}", fig.env= "figure*", out.extra="" }
+```{r diversity, echo=FALSE, fig.cap= "Diversity profiles of forest and cocoa plantation samples for all soil layer (A), and only the leaf litter (B), the first 10 cm of soil (C), and soil at 10-20 cm depth (D). \\textit{Curves show the evolution of diversity against the order of diversity. They were obtained using the CommunityProfile function (entropart R package, Marcon 2015). 95% confidence intervals (in grey) were computed by drawing 500 hypothetical communities from observed order frequencies. Note that confidence intervals for orders of diversity between 0 and 1 are mostly under the curves, as no non-sampled orders can be drawn from observed frequencies.}", fig.env= "figure*", out.extra="",dpi=200}
 plot(finalTSBFdivplot)
 
 ```
 
-```{r betadiv, echo=FALSE, fig.cap="Beta-diversity between TSBF samples. \\textit{ The PcoA projects the first four dimensions of the square root TSBF samples from the forest (green) and the agroforestry cocoa plantation (red). Dimension inertias are represented at the bottom left of the graph. Ellipses represent the 95% confidence intervals obtained using the stat_ellipse R function.}",fig.env= "figure*", out.extra=""}
+```{r betadiv, echo=FALSE, fig.cap="Beta-diversity between TSBF samples. \\textit{ The PcoA projects the first four dimensions of the square root TSBF samples from the forest (green) and the agroforestry cocoa plantation (red). Dimension inertias are represented at the bottom left of the graph. Ellipses represent the 95% confidence intervals obtained using the stat_ellipse R function.}",fig.env= "figure*", out.extra="",dpi=200}
 plot(finalTSBFbetaplot)
 
 ```
+
+```{r kable, echo=FALSE, warning=FALSE}
+names(iris) <- c("Longueur sépales", "Largeur", "Longueur pétales", "Largeur", "Espèce")
+knitr::kable(lexicon, caption="Order lexicon", longtable = TRUE, booktabs = TRUE)
+```
+
 
 
 
