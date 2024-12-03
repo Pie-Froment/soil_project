@@ -445,8 +445,7 @@ finalTSBFaccumplot= ggplot()+ # Cocoa line:
                      labels = c("Cocoa","Forest"))+
   ylim(c(9,26))+ labs(color = "Sites")
 
-# deleting variables we dont need anymore: 
-rm(Cocoa,Forest)
+
 
 ## E: Diversity profiles: ----
 
