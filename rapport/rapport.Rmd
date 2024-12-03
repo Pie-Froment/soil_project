@@ -249,6 +249,10 @@ We would like to thank Irene and Raphaël for having supervised us. Many thanks 
 
 
 # Supplementary material
+
+R codes and statistical analyses available at: https://github.com/Pie-Froment/soil_project/tree/main/rapport
+
+
 \beginsupplement
 
 ```{r accumcurve, echo=FALSE, fig.cap= "Order accumulation curves between cocoa plantation and the natural forest. \\textit{Curves were obtained using the speccaccum function (vegan R package) with 100 permutations to obtain the 95% confidence intervals (in grey).}", fig.env= "figure*", out.extra=""}
