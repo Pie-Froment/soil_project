@@ -6,7 +6,7 @@
 papers/
 Consignes_etudiants_projet_EFT_2024-2025.pdf
 
-rapport/
+
 
 *.docx
 *.xcf
@@ -31,21 +31,4 @@ rapport/
 /*_cache/
 /libs/
 
-# Latex files
-*.aux
-*-blx.bib
-*.log
-*.xml
-*.bbl
-*.bcf
-*.blg
-*.synctex.gz
-*.out
-*.toc
-*-concordance.tex
-*(busy)
-*.tex
-!EcoFoGBeamer.tex
-*.nav
-*.snm
-*.vrb
+
