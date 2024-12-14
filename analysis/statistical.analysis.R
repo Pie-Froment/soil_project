@@ -518,12 +518,14 @@ conf.int = function(community,repp = 10,problow = 0.025,probhigh = 0.975,
   obscom= CommunityProfile(Diversity,community, Correction = "None", q.seq=q.seq)
   return(list(lowconf = sapply(newvector, quantile,probs = problow),
               highconf= sapply(newvector, quantile,probs = probhigh),
-              obs = obscom$y ,
-              x = obscom$x))
+              obs = obscom$y,
+              x = q.seq))
 }
 
 # we compute confidence interval for all the layers+overall sites in datalist: 
 bootlist = lapply(datalist,conf.int,repp = 500, q.seq = seq(0,4,0.2))
+
+# bootlist = lapply(datalist,conf.int,repp = 500, q.seq = seq(0,16,0.8))
 
 # function to do the graph quickly:
 plotfun = function(bootcocoa, bootforest, title){
@@ -546,7 +548,7 @@ plotfun = function(bootcocoa, bootforest, title){
                        labels = c("Cocoa","Forest"))+
     ylim(c(min(c(bootforest$lowconf,bootcocoa$lowconf))-1,
            c(max(c(bootforest$highconf,bootcocoa$highconf))+1)))+ 
-    xlim(c(0,4))+labs(color = "Sites", title = title)
+    xlim(c(0,max(bootcocoa$x)))+labs(color = "Sites", title = title)
   return(plotdiv)
 }
 
